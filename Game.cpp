@@ -126,16 +126,6 @@ void Game::sRender()
 
 	m_window.clear();
 
-	// set the positio of the shape based on the entity's transform->pos
-	m_player->cShape->circle.setPosition(m_player->cTransform->pos.x, m_player->cTransform->pos.y);
-
-	// set the rotation of the shap based on the entity's transform->angle
-	m_player->cTransform->angle += 1.0f;
-	m_player->cShape->circle.setRotation(m_player->cTransform->angle);
-
-	// draw the entity's sf::CircleShape
-	m_window.draw(m_player->cShape->circle);
-
 	std::cout << m_entities.getEntities().size() << "\n";
 
 	for (const auto& e : m_entities.getEntities())
