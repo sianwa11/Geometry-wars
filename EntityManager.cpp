@@ -1,4 +1,5 @@
 #include "EntityManager.h"
+#include <algorithm>
 
 EntityManager::EntityManager()
 {
@@ -13,6 +14,7 @@ void EntityManager::update()
 	for (auto& e : m_entitiesToAdd)
 	{
 		m_entities.push_back(e);
+		m_entityMap[e->getTag()].push_back(e);
 	}
 
 	m_entitiesToAdd.clear();
@@ -25,54 +27,44 @@ void EntityManager::update()
 	for (auto& pair : m_entityMap)
 	{
 		const std::string& tag = pair.first;
-		std::vector<Entity>& entityVec = pair.second;
+		EntityVec& entityVec = pair.second;
 
-		// Convert std::vector<Entity> to std::vector<std::shared_ptr<Entity>>
-		std::vector<std::shared_ptr<Entity>> sharedPtrVec;
-		for (auto& entity : entityVec)
-		{
-			sharedPtrVec.push_back(std::make_shared<Entity>(entity));
-		}
-
-		removeDeadEntities(sharedPtrVec);
+		removeDeadEntities(entityVec);
 	}
 
 }
-//void EntityManager::removeDeadEntities(std::vector<Entity>& vec)
-void EntityManager::removeDeadEntities(std::vector<std::shared_ptr<Entity>>& vec)
+void EntityManager::removeDeadEntities(EntityVec& vec)
 
 {
 	// TODO: remove all dead entities from the input vector
 	//       this is called by the update() function
+	//       look into std::remove_if*
+
+
+	auto newEnd = std::remove_if(vec.begin(), vec.end(), [](const std::shared_ptr<Entity>& e) {
+		return !e->isActive();
+	});
+
+	vec.erase(newEnd, vec.end());
 }
 
 std::shared_ptr<Entity> EntityManager::addEntity(const std::string& tag)
 {
+	// Create a new Entity Object
 	auto entity = std::shared_ptr<Entity>(new Entity(m_totalEntities++, tag));
-
+	// Store it in vector of all entities
 	m_entitiesToAdd.push_back(entity);
-
+	// Store it in map of tag->entityvector *
+	//m_entityMap.insert(std::make_pair(tag, m_entities));
 	return entity;
 }
 
-
-//std::shared_ptr<Entity> EntityManager::addEntity(const std::string& tag)
-//{
-//	auto entity = std::shared_ptr<Entity>(new Entity(m_totalEntities++, tag));
-//
-//	 m_entitiesToAdd.push_back(entity);
-//
-//	 return entity;
-//}
-
-//const std::vector<Entity>& EntityManager::getEntities()
-const std::vector<std::shared_ptr<Entity>>& EntityManager::getEntities()
-
+const EntityVec& EntityManager::getEntities()
 {
 	return m_entities;
 }
 
-const std::vector<Entity>& EntityManager::getEntities(const std::string& tag)
+const EntityVec& EntityManager::getEntities(const std::string& tag)
 {
 	// TODO: this is incorrect, return the correct vector from the map
 	return m_entityMap[tag];

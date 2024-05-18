@@ -23,4 +23,7 @@ public:
 	void operator *= (float val);
 
 	float dist(const Vec2& rhs) const;
+
+	void normalize();
+	static Vec2 normalize(Vec2 vec);
 };

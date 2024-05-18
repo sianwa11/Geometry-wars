@@ -26,5 +26,6 @@ const size_t Entity::id() const
 void Entity::destroy()
 {
 	// Perform destruction tasks here
+	m_active = false;
 }
 
